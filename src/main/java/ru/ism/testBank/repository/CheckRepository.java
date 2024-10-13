@@ -4,12 +4,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.ism.testBank.domain.dto.CountDto;
 import ru.ism.testBank.domain.model.Check;
-import ru.ism.testBank.domain.model.Count;
 
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Репозиторий хранения информации о выполнении привычек
+ */
 @Repository
 public interface CheckRepository extends JpaRepository<Check, Long> {
 
@@ -22,23 +25,20 @@ public interface CheckRepository extends JpaRepository<Check, Long> {
 
     List<Check> findChecksByDateAndAndHabitId(LocalDate date, Long habitId);
 
-    @Query(value = "SELECT " +
-            "ROW_NUMBER() OVER (ORDER BY c.date) AS rn, " +
-            "c.date - make_interval(0,0,0,CAST((ROW_NUMBER() OVER (ORDER BY c.date)) AS integer),0,0,0) AS grp, " +
-            "c.date AS d " +
-            "FROM checklist as c", nativeQuery = true)
-    List<Count> stat();
-
-    /*
-     @Query(value = "SELECT " +
-            "COUNT(*) AS con, " +
-            "MIN(groups.d) AS minDate " +
-            "FROM (SELECT " +
-            "ROW_NUMBER() OVER (ORDER BY c.date) AS rn, " +
-            "c.date - (ROW_NUMBER() OVER (ORDER BY c.date)) AS grp, " +
-            "c.date AS d " +
-            "FROM checklist as c) AS groups " +
-            "GROUP BY grp ", nativeQuery = true)
-    List<Count> stat();
+    /**
+     * Подсчет текущих серий выполнения привычек (streak).
      */
+    @Query(value = "SELECT COUNT(*) AS con, " +
+            "       MIN(groups.d) AS minDate " +
+            "FROM ( SELECT ROW_NUMBER() OVER (ORDER BY c.date)                     AS rn, " +
+            "    CAST(c.date - make_interval(0, 0, 0," +
+            "    CAST((ROW_NUMBER() OVER (ORDER BY c.date)) AS integer)) AS DATE) AS grp, " +
+            "    c.date                                                           AS d " +
+            "      FROM checklist as c " +
+            "      WHERE (c.date BETWEEN ?1 AND ?2) " +
+            "            AND (c.habit_id = ?3)) " +
+            "         AS groups " +
+            "GROUP BY grp", nativeQuery = true)
+    List<CountDto> stat(LocalDate startRange, LocalDate finishRange, Long habitId, PageRequest pageRequest);
+
 }

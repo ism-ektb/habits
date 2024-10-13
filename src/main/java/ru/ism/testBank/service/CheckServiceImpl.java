@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import ru.ism.testBank.domain.model.Check;
-import ru.ism.testBank.domain.model.Count;
+import ru.ism.testBank.domain.dto.CountDto;
 import ru.ism.testBank.domain.model.Habit;
 import ru.ism.testBank.domain.model.User;
 import ru.ism.testBank.exception.exception.BaseRelationshipException;
@@ -12,7 +12,6 @@ import ru.ism.testBank.exception.exception.NoFoundObjectException;
 import ru.ism.testBank.repository.CheckRepository;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -53,7 +52,12 @@ public class CheckServiceImpl implements CheckService{
     }
 
     @Override
-    public List<Count> getStat() {
-        return repository.stat();
+    public List<CountDto> getStat(LocalDate startRange, LocalDate finishRange, Long habitId, PageRequest pageRequest) {
+        User user = userService.getCurrentUser();
+        Habit habit = habitService.getHabitById(habitId);
+        if (user.getId() != habit.getUser().getId()) throw new BaseRelationshipException(
+                String.format("Привычка с id '%s' не принадлежит пользователю", habitId)
+        );
+        return repository.stat(startRange, finishRange, habitId, pageRequest);
     }
 }

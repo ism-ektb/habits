@@ -13,7 +13,7 @@ import ru.ism.testBank.domain.dto.CheckDto;
 import ru.ism.testBank.domain.mapper.CheckListMapper;
 import ru.ism.testBank.domain.mapper.CheckMapper;
 import ru.ism.testBank.domain.model.Check;
-import ru.ism.testBank.domain.model.Count;
+import ru.ism.testBank.domain.dto.CountDto;
 import ru.ism.testBank.service.CheckService;
 
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "трекер привычек", description = "Доступен только авторизованным пользователям")
+@Tag(name = "Работа с информацией о выполнении привычек", description = "Доступен только авторизованным пользователям")
 public class CheckController {
 
     private final CheckService service;
@@ -41,7 +41,7 @@ public class CheckController {
     }
 
     @DeleteMapping
-    @Operation(summary = "добавление информации о выполнении привычки")
+    @Operation(summary = "удаление информации о выполнении привычки")
     public void deleteCheck(@RequestBody @Valid CheckDto checkDto) {
         Check check = mapper.dtoToModel(checkDto);
         service.delete(check);
@@ -63,8 +63,14 @@ public class CheckController {
     }
 
     @GetMapping("/stat")
-    @Operation(summary = "Получение статистики")
-    public List<Count> stat(){
-        return service.getStat();
+    @Operation(summary = "Подсчет текущих серий выполнения привычек (streak).")
+    public List<CountDto> stat(@RequestParam(required = false,
+            defaultValue = "#{T(java.time.LocalDate).now().minusYears(200)}") LocalDate startRange,
+                               @RequestParam(required = false,
+                                       defaultValue = "#{T(java.time.LocalDate).now()}") LocalDate finishRange,
+                               @RequestParam Long habitId,
+                               @RequestParam(defaultValue = "0", required = false) int from,
+                               @RequestParam(defaultValue = "10", required = false) int size){
+        return service.getStat(startRange, finishRange, habitId, PageRequest.of(from / size, size));
     }
 }

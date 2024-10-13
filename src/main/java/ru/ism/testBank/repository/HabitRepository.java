@@ -10,7 +10,9 @@ import ru.ism.testBank.domain.model.Period;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
+/**
+ * репозиторий привычек
+ */
 @Repository
 public interface HabitRepository extends JpaRepository<Habit, Long> {
 
