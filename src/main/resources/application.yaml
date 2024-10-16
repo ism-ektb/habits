@@ -3,7 +3,7 @@ spring:
     name: test bank
   sql:
     init:
-      mode: always
+      mode: never
   datasource:
     url: jdbc:postgresql://localhost:5432/account?createDatabaseIfNotExist=true
     driverClassName: org.postgresql.Driver

@@ -26,4 +26,9 @@ public interface CheckService {
      * Подсчет текущих серий выполнения привычек (streak).
      */
     List<CountDto> getStat(LocalDate startRange, LocalDate finishRange, Long habitId, PageRequest pageRequest);
+
+    /**
+     * Процент успешного выполнения привычек за определенный период.
+     */
+    Integer getPercent(LocalDate startRange, LocalDate finishRange, Long habitId);
 }

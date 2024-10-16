@@ -41,4 +41,9 @@ public interface CheckRepository extends JpaRepository<Check, Long> {
             "GROUP BY grp", nativeQuery = true)
     List<CountDto> stat(LocalDate startRange, LocalDate finishRange, Long habitId, PageRequest pageRequest);
 
+    @Query(value = "SELECT count(*)/(DATE_PART('day', '?2'::date) - DATE_PART('day', '?1'::date))*100 " +
+            "FROM checklist AS c " +
+                  "GROUP BY 1", nativeQuery = true)
+    List<Integer> percent(LocalDate startRange, LocalDate finishRange, Long habitId);
 }
+

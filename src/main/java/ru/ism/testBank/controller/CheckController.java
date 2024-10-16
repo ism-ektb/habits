@@ -73,4 +73,13 @@ public class CheckController {
                                @RequestParam(defaultValue = "10", required = false) int size){
         return service.getStat(startRange, finishRange, habitId, PageRequest.of(from / size, size));
     }
+
+    @GetMapping("/percent")
+    @Operation(summary = "Процент успешного выполнения привычек за определенный период.")
+    public Integer stat(@RequestParam LocalDate startRange,
+                               @RequestParam LocalDate finishRange,
+                               @RequestParam Long habitId){
+        return service.getPercent(startRange, finishRange, habitId);
+    }
+
 }

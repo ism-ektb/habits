@@ -60,4 +60,19 @@ public class CheckServiceImpl implements CheckService{
         );
         return repository.stat(startRange, finishRange, habitId, pageRequest);
     }
+
+    /**
+     * Процент успешного выполнения привычек за определенный период.
+     *
+     */
+    @Override
+    public Integer getPercent(LocalDate startRange, LocalDate finishRange, Long habitId) {
+        User user = userService.getCurrentUser();
+        Habit habit = habitService.getHabitById(habitId);
+        if (user.getId() != habit.getUser().getId()) throw new BaseRelationshipException(
+                String.format("Привычка с id '%s' не принадлежит пользователю", habitId)
+        );
+        Integer percent = repository.percent(startRange, finishRange, habitId).get(0);
+        return percent;
+    }
 }
